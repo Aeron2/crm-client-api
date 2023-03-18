@@ -3,6 +3,7 @@ const { route } = require('./ticketRouter');
 const router = express.Router();
 const { hashPassword, comparePassword } = require('../helpers/bcryptHelper');
 const { insertUser, getUserByEmail } = require('../model/user/UserModel');
+const { createAccessJWT, createRefreshJWT } = require('../helpers/jwtHelper');
 
 router.all('/', (req, res, next) => {
   // res.json({
@@ -82,9 +83,15 @@ router.post('/login', async (req, res) => {
   }
   console.log(result);
 
+  const accessJWT = await createAccessJWT(user.email);
+
+  const refreshJWT = await createRefreshJWT(user.email);
+
   res.json({
     status: 'success',
     message: 'login successfully',
+    accessJWT,
+    refreshJWT,
   });
 });
 
