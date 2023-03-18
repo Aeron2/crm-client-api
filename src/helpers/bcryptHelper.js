@@ -10,3 +10,12 @@ exports.hashPassword = (plainPassword) => {
   //     // Store hash in your password DB.
   //   });
 };
+
+exports.comparePassword = (plainPass, passFromDb) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(plainPass, passFromDb, function (err, result) {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+};
