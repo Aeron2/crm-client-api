@@ -15,7 +15,6 @@ const UserSchema = new Schema({
   address: {
     type: String,
     maxlength: 100,
-   
   },
   phone: {
     type: Number,
@@ -31,11 +30,23 @@ const UserSchema = new Schema({
   password: {
     type: String,
     maxlength: 100,
-    minlength :8,
+    minlength: 8,
     required: true,
+  },
+  refreshJWT: {
+    token: {
+      type: String,
+      maxlenght: 500,
+      default: '',
+    },
+    addedAt: {
+      type: Date,
+      required: true,
+      default: Date.now(),
+    },
   },
 });
 
 module.exports = {
-  UserSchema : mongoose.model('User',UserSchema)
-}
+  UserSchema: mongoose.model('User', UserSchema),
+};
