@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { setJWT, getJWT } = require('./redisHelper');
 const { storeUserRefreshJWT } = require('../model/user/UserModel');
-// const { token } = require('morgan');
+const { token } = require('morgan');
 
 const crateAccessJWT = async (email, _id) => {
   try {
     const accessJWT = await jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: '15m', 
+      expiresIn: '30d', 
     });
 
     await setJWT(accessJWT, _id);

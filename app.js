@@ -44,10 +44,12 @@ app.use(bodyParser.json());
 //Loadf Rourter
 const userRouter = require('./src/routers/userRouter');
 const ticketRouter = require('./src/routers/ticketRouter');
+const tokensRouter = require('./src/routers/tokensRouter');
 
 // useRouters
 app.use('/v1/user', userRouter);
 app.use('/v1/ticket', ticketRouter);
+app.use('/v1/tokens', tokensRouter);
 
 //setting port
 
