@@ -18,12 +18,22 @@ const getUserByEmail = (email) => {
       reject(error);
     }
   });
+};const getUserById = (_id) => {
+  return new Promise((resolve, reject) => {
+    if (!_id) return false;
+    try {
+      const user = UserSchema.findOne({ _id });
+      resolve(user);
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 const storeUserRefreshJWT = (_id, token) => {
   return new Promise((resolve, reject) => {
     try {
       UserSchema.findOneAndUpdate(
-        { _id },
+         _id ,
         {
           $set: { 'refreshJWT.token': token, 'refreshJWT.addedAt': Date.now() },
         },
@@ -45,4 +55,5 @@ module.exports = {
   insertUser,
   getUserByEmail,
   storeUserRefreshJWT,
+  getUserById,
 };
