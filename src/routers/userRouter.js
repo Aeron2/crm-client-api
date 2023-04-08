@@ -7,6 +7,7 @@ const {
   getUserByEmail,
   getUserById,
 } = require('../model/user/UserModel');
+const { setPasswordRestPin } = require('../model/restPin/restPinModel');
 const { crateAccessJWT, crateRefreshJWT } = require('../helpers/jwtHelper');
 const { userAuthorization } = require('../middleware/authorizationMiddleware');
 router.all('/', (req, res, next) => {
@@ -99,12 +100,28 @@ router.post('/login', async (req, res) => {
   });
 });
 
-router.get('/', userAuthorization,async (req, res) => {
+router.get('/', userAuthorization, async (req, res) => {
   const _id = req.userId;
 
   const userProf = await getUserById(_id);
 
   res.json({ user: userProf });
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { email } = req.body;
+
+  const user = await getUserByEmail(email);
+
+  if (user && user._id) {
+    const setPin = await setPasswordRestPin(email);
+    return res.json(setPin);
+  }
+  res.json({
+    status: 'error',
+    message:
+      ' if the email exists in ourt db then the pin will be sent shortly!!!',
+  });
 });
 
 module.exports = router;
