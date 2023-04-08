@@ -15,12 +15,13 @@ const {
 } = require('../model/restPin/restPinModel');
 const { crateAccessJWT, crateRefreshJWT } = require('../helpers/jwtHelper');
 const { userAuthorization } = require('../middleware/authorizationMiddleware');
+const {
+  resetPassReqValidation,
+  updatePassValidation,
+} = require('../middleware/formValidationMiddleware');
 const { emailProcessor } = require('../helpers/emailHelper');
 
 router.all('/', (req, res, next) => {
-  // res.json({
-  //   // message: ' return from user router ',
-  // });
   next();
 });
 
@@ -115,7 +116,7 @@ router.get('/', userAuthorization, async (req, res) => {
   res.json({ user: userProf });
 });
 
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', resetPassReqValidation, async (req, res) => {
   const { email } = req.body;
 
   const user = await getUserByEmail(email);
@@ -142,7 +143,7 @@ router.post('/reset-password', async (req, res) => {
   });
 });
 
-router.patch('/reset-password', async (req, res) => {
+router.patch('/reset-password', updatePassValidation, async (req, res) => {
   const { email, pin, newPassword } = req.body;
   const getPin = await getPinByEmailPin(email, pin);
 
