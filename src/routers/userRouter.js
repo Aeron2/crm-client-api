@@ -6,10 +6,17 @@ const {
   insertUser,
   getUserByEmail,
   getUserById,
+  updatePassword,
 } = require('../model/user/UserModel');
-const { setPasswordRestPin } = require('../model/restPin/restPinModel');
+const {
+  setPasswordRestPin,
+  getPinByEmailPin,
+  deletePin,
+} = require('../model/restPin/restPinModel');
 const { crateAccessJWT, crateRefreshJWT } = require('../helpers/jwtHelper');
 const { userAuthorization } = require('../middleware/authorizationMiddleware');
+const { emailProcessor } = require('../helpers/emailHelper');
+
 router.all('/', (req, res, next) => {
   // res.json({
   //   // message: ' return from user router ',
@@ -115,12 +122,64 @@ router.post('/reset-password', async (req, res) => {
 
   if (user && user._id) {
     const setPin = await setPasswordRestPin(email);
-    return res.json(setPin);
+
+    const result = await emailProcessor({
+      email,
+      pin: setPin.pin,
+      type: 'request-new-pass',
+    });
+
+    return res.json({
+      status: 'success',
+      message:
+        'if the email existd in our db, the password will be sent to you shortly',
+    });
   }
-  res.json({
+  return res.json({
     status: 'error',
     message:
-      ' if the email exists in ourt db then the pin will be sent shortly!!!',
+      'if the email existd in our db, the password will be sent to you shortly',
+  });
+});
+
+router.patch('/reset-password', async (req, res) => {
+  const { email, pin, newPassword } = req.body;
+  const getPin = await getPinByEmailPin(email, pin);
+
+  if (getPin?._id) {
+    const dbDate = getPin.addedAt;
+    const expiresIn = 1;
+    let expDate = dbDate.setDate(dbDate.getDate() + expiresIn);
+    const today = new Date();
+    if (today > expDate) {
+      return res.json({
+        status: 'error',
+        message: 'Invalid or expirerd pin',
+      });
+    }
+
+    // encrypt the new password
+    const hashedPass = await hashPassword(newPassword);
+    const user = await updatePassword(email, hashedPass);
+
+    if (user._id) {
+      //send email noti
+
+      await emailProcessor({ email, type: 'password-update-succcess' });
+
+      ////delete pion from db
+      deletePin(email, pin);
+
+      return res.json({
+        status: 'success',
+        message: 'Your password has been updated',
+      });
+    }
+  }
+
+  res.json({
+    status: 'error',
+    message: 'Unable to update teh password plx try again later',
   });
 });
 

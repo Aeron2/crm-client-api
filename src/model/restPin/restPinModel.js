@@ -22,30 +22,22 @@ const setPasswordRestPin = async (email) => {
 };
 
 const getPinByEmailPin = (email, pin) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      ResetPinSchema.findOne({ email, pin }, (error, data) => {
-        if (error) {
-          console.log(error);
-          resolve(false);
-        }
-
-        resolve(data);
-      });
+      const findByEmail1 = await ResetPinSchema.findOne({ email, pin });
+      resolve(findByEmail1);
+      console.log(findByEmail1);
     } catch (error) {
-      reject(error);
+      reject(findByEmail1);
       console.log(error);
     }
   });
 };
 
-const deletePin = (email, pin) => {
+const deletePin = async (email, pin) => {
   try {
-    ResetPinSchema.findOneAndDelete({ email, pin }, (error, data) => {
-      if (error) {
-        console.log(error);
-      }
-    });
+    const delPin = await ResetPinSchema.findOneAndDelete({ email, pin });
+    console.log(delPin);
   } catch (error) {
     console.log(error);
   }

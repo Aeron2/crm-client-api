@@ -18,7 +18,8 @@ const getUserByEmail = (email) => {
       reject(error);
     }
   });
-};const getUserById = (_id) => {
+};
+const getUserById = (_id) => {
   return new Promise((resolve, reject) => {
     if (!_id) return false;
     try {
@@ -33,9 +34,33 @@ const storeUserRefreshJWT = (_id, token) => {
   return new Promise((resolve, reject) => {
     try {
       UserSchema.findOneAndUpdate(
-         _id ,
+        _id,
         {
           $set: { 'refreshJWT.token': token, 'refreshJWT.addedAt': Date.now() },
+        },
+        { new: true }
+      )
+        .then((data) => resolve(data))
+        .catch((error) => {
+          console.log(error);
+          reject(error);
+        });
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+};
+
+const updatePassword = (email, newhashedPass) => {
+  return new Promise((resolve, reject) => {
+    try {
+      UserSchema.findOneAndUpdate(
+        { email },
+        {
+          $set: {
+            password: newhashedPass,
+          },
         },
         { new: true }
       )
@@ -56,4 +81,5 @@ module.exports = {
   getUserByEmail,
   storeUserRefreshJWT,
   getUserById,
+  updatePassword,
 };
