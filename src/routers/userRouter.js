@@ -7,6 +7,7 @@ const {
   getUserByEmail,
   getUserById,
   updatePassword,
+  storeUserRefreshJWT,
 } = require('../model/user/UserModel');
 const {
   setPasswordRestPin,
@@ -20,6 +21,7 @@ const {
   updatePassValidation,
 } = require('../middleware/formValidationMiddleware');
 const { emailProcessor } = require('../helpers/emailHelper');
+const { deleteJWT } = require('../helpers/redisHelper');
 
 router.all('/', (req, res, next) => {
   next();
@@ -183,5 +185,24 @@ router.patch('/reset-password', updatePassValidation, async (req, res) => {
     message: 'Unable to update teh password plx try again later',
   });
 });
+router.delete('/logout', userAuthorization, async (req, res) => {
+  const { authorization } = req.headers;
+  const _id = req.userId;
 
+  //delete jwt
+  deleteJWT(authorization);
+
+  const result = await storeUserRefreshJWT(_id, '');
+
+  if (result?._id) {
+    return res.json({
+      status: 'success',
+      message: 'logged out successfully',
+    });
+  }
+  res.json({
+    status: 'error',
+    message: 'unable to log you out',
+  });
+});
 module.exports = router;
